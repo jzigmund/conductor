@@ -50,7 +50,7 @@ class ApplicationController < ActionController::Base
       return
     end
     handle_error(:error => error, :status => :forbidden,
-                 :title => t('application_controller.access_denied'))
+                 :title => _("Access denied"))
   end
 
   def handle_partial_success_error(error)
@@ -65,25 +65,25 @@ class ApplicationController < ActionController::Base
     @failures = error.failures
     handle_error(:error => error, :status => :ok,
                  :message => error.message + ": " + failures_arr.join(", "),
-                 :title => t('application_controller.some_actions_failed'))
+                 :title => _("Some actions failed"))
   end
 
   def handle_action_error(error)
     handle_error(:error => error, :status => :conflict,
-                 :title => t('application_controller.action_error'))
+                 :title => _("Action Error"))
   end
 
   def handle_general_error(error)
     handle_error(:error => error, :status => :internal_server_error,
-                 :title => t('application_controller.internal_server_error'),
+                 :title => _("Internal Server Error"),
                  :status => 500)
   end
 
   def handle_error(hash)
     log_backtrace(hash[:error]) if hash[:error]
     msg = hash[:message] || hash[:error].message
-    title = hash[:title] || t('application_controller.internal_server_error')
-    status = hash[:status] || t('application_controller.internal_server_error')
+    title = hash[:title] || _("Internal Server Error")
+    status = hash[:status] || _("Internal Server Error")
     respond_to do |format|
       format.html { html_error_page(title, msg, status) }
       format.json { render :json => json_error_hash(msg, status) }
@@ -116,7 +116,7 @@ class ApplicationController < ActionController::Base
     respond_to do |format|
       format.html do
         redirect_to :controller => params[:controller]
-        flash[:notice] = t('application_controller.flash.notice.record_not_exist')
+        flash[:notice] = _("The record you tried to access does not exist. It may have been deleted")
       end
       format.xml { render :template => 'api/error', :locals => {:error => error}, :status => :not_found }
     end
@@ -152,7 +152,7 @@ class ApplicationController < ActionController::Base
 
   def import_xml_from_url(url)
     if url.blank?
-      error = t('application_controller.flash.error.no_url_provided')
+      error = _("No URL is provided for XML import")
     elsif not url =~ URI::regexp
       error = t('application_controller.flash.error.not_valid_url', :url => url)
     else
@@ -161,7 +161,7 @@ class ApplicationController < ActionController::Base
         if response.code == 200
           return response, nil
         else
-          error = t('application_controller.flash.error.download_failed')
+          error = _("Download of XML file failed")
         end
       rescue RestClient::Exception, SocketError, URI::InvalidURIError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
         error = t('application_controller.flash.error.not_valid_or_reachable', :url => url)
@@ -232,7 +232,7 @@ class ApplicationController < ActionController::Base
       format.html do
         store_location
         unless session[:return_to] == root_path # don't display notice if going to root
-          flash[:warning] = t('application_controller.flash.notice.must_be_logged')
+          flash[:warning] = _("You must be logged in to access this page")
         end
         redirect_to login_url
       end
@@ -252,7 +252,7 @@ class ApplicationController < ActionController::Base
   def require_no_user
     return true unless current_user
     store_location
-    flash[:notice] = t('application_controller.flash.notice.must_not_be_logged')
+    flash[:notice] = _("You must be logged out to access this page")
     redirect_to account_url
   end
 
@@ -299,9 +299,9 @@ class ApplicationController < ActionController::Base
   end
 
   def set_admin_content_tabs(tab)
-    @tabs = [{:name => t('application_controller.admin_tabs.catalogs'), :url => catalogs_url, :id => 'catalogs'},
-             {:name => t('application_controller.admin_tabs.realms'), :url => frontend_realms_url, :id => 'frontend_realms'},
-             {:name => t('application_controller.admin_tabs.hardware'), :url => hardware_profiles_url, :id => 'hardware_profiles'},
+    @tabs = [{:name => _("Catalogs"), :url => catalogs_url, :id => 'catalogs'},
+             {:name => _("Realms"), :url => frontend_realms_url, :id => 'frontend_realms'},
+             {:name => _("Hardware"), :url => hardware_profiles_url, :id => 'hardware_profiles'},
     ]
     unless @details_tab = @tabs.find {|t| t[:id] == tab}
       raise "Tab '#{tab}' doesn't exist"
@@ -309,9 +309,9 @@ class ApplicationController < ActionController::Base
   end
 
   def set_admin_users_tabs(tab)
-    @tabs = [{:name => t('application_controller.admin_tabs.users'), :url => users_url, :id => 'users'},
-             {:name => t('application_controller.admin_tabs.user_groups'), :url => user_groups_url, :id => 'user_groups'},
-             {:name => t('application_controller.admin_tabs.permissions'), :url => permissions_url, :id => 'permissions'},
+    @tabs = [{:name => _("Users"), :url => users_url, :id => 'users'},
+             {:name => _("User Groups"), :url => user_groups_url, :id => 'user_groups'},
+             {:name => _("Global Role Grants"), :url => permissions_url, :id => 'permissions'},
     ]
     unless @details_tab = @tabs.find {|t| t[:id] == tab}
       raise "Tab '#{tab}' doesn't exist"
@@ -319,8 +319,8 @@ class ApplicationController < ActionController::Base
   end
 
   def set_admin_environments_tabs(tab)
-    @tabs = [{:name => t('application_controller.admin_tabs.pool_families'), :url => pool_families_url, :id => 'pool_families'},
-             {:name => t('application_controller.admin_tabs.images'), :url => images_url, :id => 'images'},
+    @tabs = [{:name => _("Environments"), :url => pool_families_url, :id => 'pool_families'},
+             {:name => _("Images"), :url => images_url, :id => 'images'},
     ]
     unless @details_tab = @tabs.find {|t| t[:id] == tab}
       raise "Tab '#{tab}' doesn't exist"
@@ -365,13 +365,13 @@ class ApplicationController < ActionController::Base
         { :name => 'checkbox', :class => 'checkbox', :sortable => false }
     end
     @permission_list_header += [
-      { :name => t('permissions.resource_type')},
-      { :name => t('permissions.resource')},
-      { :name => t("role"), :sort_attr => :role},
+      { :name => _("Resource Type")},
+      { :name => _("Resource")},
+      { :name => _("Role"), :sort_attr => :role},
     ]
     if @show_inherited
       @permission_list_header <<
-        { :name => t('permissions.inherited_from'), :sortable => false }
+        { :name => _("Inherited From"), :sortable => false }
     end
   end
 
@@ -396,7 +396,7 @@ class ApplicationController < ActionController::Base
     if perm_obj.has_privilege(current_session, current_user, Privilege::PERM_VIEW)
       @roles = Role.find_all_by_scope(@permission_object.class.name)
       if @tabs
-        @tabs << {:name => t('role_assignments'),
+        @tabs << {:name => _("Role Assignments"),
                   :view => 'permissions/permissions',
                   :id => 'permissions',
                   :count => perm_obj.permissions.count,
@@ -430,12 +430,12 @@ class ApplicationController < ActionController::Base
         { :name => 'checkbox', :class => 'checkbox', :sortable => false }
     end
     @permission_list_header += [
-      { :name => t('permissions.name')},
-      { :name => t("role"), :sort_attr => :role},
+      { :name => _("Name")},
+      { :name => _("Role"), :sort_attr => :role},
     ]
     if @show_inherited
       @permission_list_header <<
-        { :name => t('permissions.inherited_from'), :sortable => false }
+        { :name => _("Inherited From"), :sortable => false }
     end
   end
 

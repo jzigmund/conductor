@@ -10,7 +10,7 @@
 
           {{^build_status.is_active_build}}
             {{#build_status.build_action_available}}
-              <%= button_to(t('images.show.build'),
+              <%= button_to(_("Build"),
                             '{{build_target_image_path}}',
                             :method => :post) %>
               {{#build_status.translated_failed_build_count}}
@@ -21,7 +21,7 @@
             {{/build_status.build_action_available}}
 
             {{#build_status.delete_action_available}}
-              <%= button_to(t('images.show.delete'),
+              <%= button_to(_("Delete"),
                             '{{delete_target_image_path}}',
                             :method => :delete) %>
             {{/build_status.delete_action_available}}
@@ -32,13 +32,13 @@
         <table class="light_table">
           <thead>
             <tr><th>
-              <strong><%= t('images.show.account') %></strong>
+              <strong><%= _("Account") %></strong>
             </th>
             <th>
-              <%= t('images.show.provider') %>
+              <%= _("Provider") %>
             </th>
             <th>
-              <%= t('images.show.providers_image_id') %>
+              <%= _("Provider's Image ID") %>
             </th>
             <th class="image_controls"></th>
           </tr></thead>
@@ -64,12 +64,12 @@
                       {{^push_status.is_active_push}}
                         {{#push_status.push_started_for_account}}
                           <div class="light">
-                            <%= t('images.show.push_started') %>
+                            <%= _("Push is about to start") %>
                           </div>
                         {{/push_status.push_started_for_account}}
 
                         {{#push_status.build_action_available}}
-                          <%= button_to(t('images.show.push'),
+                          <%= button_to(_("Push"),
                                         '{{push_provider_image_path}}',
                                         :method => :post,
                                         :class => 'upload_image button') %>

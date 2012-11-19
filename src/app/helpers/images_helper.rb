@@ -21,7 +21,7 @@ module ImagesHelper
   def options_for_build_select(builds, selected, latest)
       options_for_select(builds.map do |b|
         label = Time.at(b.timestamp.to_f).to_s
-        label += " (#{t'images.show.latest'})" if b.uuid == latest
+        label += " (#{_("Latest")})" if b.uuid == latest
         [label, b.uuid]
       end, selected ? selected.uuid : nil)
   end

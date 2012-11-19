@@ -22,12 +22,12 @@ class ImagesController < ApplicationController
     set_admin_environments_tabs 'images'
 
     @header = [
-      { :name => t('images.index.name'), :sort_attr => :name },
-      { :name => t('images.environment_header'), :sort_attr => :name },
-      { :name => t('images.index.os'), :sort_attr => :name },
-      { :name => t('images.index.os_version'), :sort_attr => :name },
-      { :name => t('images.index.architecture'), :sort_attr => :name },
-      { :name => t('images.index.last_rebuild'), :sortable => false },
+      { :name => _("Name"), :sort_attr => :name },
+      { :name => _("Environment"), :sort_attr => :name },
+      { :name => _("OS"), :sort_attr => :name },
+      { :name => _("OS Version"), :sort_attr => :name },
+      { :name => _("Architecture"), :sort_attr => :name },
+      { :name => _("Last Rebuild"), :sortable => false },
     ]
 
     if params[:pool_family_id].present?
@@ -51,7 +51,7 @@ class ImagesController < ApplicationController
     @image = Aeolus::Image::Warehouse::Image.find(params[:id])
     if @image.nil?
       redirect_to images_path
-      flash[:error] = t('images.flash.error.not_exist')
+      flash[:error] = _("The Image you tried to access cannot be found. It may have been deleted.")
       return
     end
     @environment = PoolFamily.where('name' => @image.environment).first
@@ -106,7 +106,7 @@ class ImagesController < ApplicationController
       end
     end
     if @account_groups_listing.empty?
-      flash[:error] = t("images.flash.error.no_provider_accounts")
+      flash[:error] = _("Images cannot be built. There are no enabled Provider Accounts associated with this Environment.")
     end
 
     @images_by_provider_type = []
@@ -184,7 +184,7 @@ class ImagesController < ApplicationController
     if template
       render :xml => template.body
     else
-      flash[:error] = t('images.flash.error.no_template')
+      flash[:error] = _("The Image doesn't have an Image Template because it was originally imported, rather than built in Conductor.")
       redirect_to image_path(@image)
     end
   end
@@ -196,8 +196,8 @@ class ImagesController < ApplicationController
       list_for_user(current_session, current_user, Privilege::USE)
     if @accounts.empty?
       flash.now[:error] = params[:tab] == 'import' ?
-        t("images.flash.error.no_provider_accounts_for_import") :
-        t("images.flash.error.no_provider_accounts")
+        _("Images cannot be imported. No Provider Accounts are currently enabled for this Environment.") :
+        _("Images cannot be built. There are no enabled Provider Accounts associated with this Environment.")
     end
     if 'import' == params[:tab]
       render :import
@@ -215,18 +215,18 @@ class ImagesController < ApplicationController
     xml = "<image><name>#{params[:name]}</name></image>" unless params[:name].blank?
     begin
       image = Image.import(account, params[:image_id].strip, @environment, xml)
-      flash[:success] = t("images.import.image_imported")
+      flash[:success] = _("The image was imported successfully.")
       redirect_to image_url(image.id) and return
     rescue Exception => e
       logger.error "Caught exception importing image: #{e.message}"
       if e.is_a?(Aeolus::Conductor::Base::ImageNotFound)
-        flash[:error] = t('images.not_on_provider')
+        flash[:error] = _("The requested image was not found on the Provider.")
       elsif e.is_a?(Aeolus::Conductor::Base::BlankImageId)
-        flash[:error] = t('images.import.blank_id')
+        flash[:error] = _("Image ID cannot be blank.")
       elsif e.is_a?(Errno::ECONNRESET) or e.is_a?(Errno::ECONNREFUSED)
-        flash[:error] = t('images.import.provider_unreachable')
+        flash[:error] = _("Conductor could not connect to Image Factory. Please verify that Image Factory is running and is correctly configured.")
       else
-        flash[:error] = t("images.import.image_not_imported")
+        flash[:error] = _("The image could not be imported. Check the Image Factory log for further details.")
       end
       redirect_to new_image_url(:tab => 'import', :environment => @environment)
     end
@@ -239,7 +239,7 @@ class ImagesController < ApplicationController
     errors = []
 
     if @name.empty?
-      errors << t('images.flash.error.no_name')
+      errors << _("You must specify the Image Template name")
     end
 
     if params.has_key? :image_url
@@ -257,7 +257,7 @@ class ImagesController < ApplicationController
       unless xml_source
         @accounts = @environment.provider_accounts.enabled.
             list_for_user(current_session, current_user, Privilege::USE)
-        errors << t('images.flash.error.no_file')
+        errors << _("You must specify the Image Template XML file")
         flash[:error] = errors
         render :new, :locals => {:active => "file"} and return
       end
@@ -339,7 +339,7 @@ class ImagesController < ApplicationController
       :template => @tpl.uuid,
       :environment => @environment.name
     })
-    flash.now[:error] = t('images.flash.notice.created')
+    flash.now[:error] = _("Image created")
     redirect_to image_path(@image.id)
   end
 
@@ -348,12 +348,12 @@ class ImagesController < ApplicationController
       @environment = PoolFamily.where('name' => image.environment).first
       check_permissions
       if image.delete!
-        flash[:notice] = t('images.flash.notice.deleted')
+        flash[:notice] = _("Image Deleted")
       else
-        flash[:warning] = t('images.flash.warning.delete_failed')
+        flash[:warning] = _("Unable to Delete Image")
       end
     else
-      flash[:warning] = t('images.flash.warning.not_found')
+      flash[:warning] = _("Image not found")
     end
     redirect_to images_path
   end
@@ -403,17 +403,17 @@ class ImagesController < ApplicationController
 
   def latest_build?(build)
     unless build
-      flash[:error] = t('images.show.missing_build')
+      flash[:error] = _("Select a build first")
       return false
     end
     begin
       latest_build = @image.latest_pushed_or_unpushed_build.uuid
       if latest_build != build.id
-        flash[:error] = t('images.show.only_latest_builds_can_be_pushed')
+        flash[:error] = _("Only the latest build can be pushed")
         return false
       end
     rescue
-      flash[:error] = t('images.show.not_built')
+      flash[:error] = _("The image is not built yet")
       return false
     end
     return true

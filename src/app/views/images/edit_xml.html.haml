@@ -13,10 +13,10 @@
       = hidden_field_tag :environment, @environment.id
       = hidden_field_tag :name, @name
       .field
-        = label_tag :image_xml, t('.edit_xml')
+        = label_tag :image_xml, _("Edit XML")
         = text_area_tag :image_xml, @xml, :class => 'edit_xml'
 
       .centered
         %fieldset.align-center
-          = submit_tag t('.save_and_continue'), :class => 'button primary', :id => 'save_image'
-          = link_to t(:cancel), pool_families_path, :class => 'button danger'
+          = submit_tag _("Save and Continue"), :class => 'button primary', :id => 'save_image'
+          = link_to _("Cancel"), pool_families_path, :class => 'button danger'

@@ -2,42 +2,42 @@
 %header.page-header
   .obj_actions
     .return_to
-      =t'return_to'
-      = link_to t('images.index.images'), images_path
+      =_("Return to:")
+      = link_to _("Images"), images_path
     - if @environment and check_privilege(Privilege::USE, @environment)
       .button-group
-        = link_to t('images.show.new_deployable_from_image'), new_deployable_path(:create_from_image => @image.id), :class => 'button'
+        = link_to _("New Deployable from Image"), new_deployable_path(:create_from_image => @image.id), :class => 'button'
         - unless @image.imported?
-          = link_to t('images.show.template_xml'), template_image_path(@image.uuid), :class => 'button'
-        = button_to t("delete"), image_path(@image.id), :method => 'delete', :confirm => t('general.delete_confirmation'), :class => 'button danger', :id => 'delete'
+          = link_to _("View Image Template XML"), template_image_path(@image.uuid), :class => 'button'
+        = button_to _("Delete"), image_path(@image.id), :method => 'delete', :confirm => _("Are you sure you want to delete?"), :class => 'button danger', :id => 'delete'
   %h1.no-icon= @image.imported? ? @image.name + " (Imported)" : @image.name
 
 - user_can_build = (@environment and check_privilege(Privilege::USE, @environment))
 %section.content-section
   %header
-    %h2=t'properties'
+    %h2=_("Properties")
   .content
     %table.properties_table
       %tbody
         %tr
-          %td= t('images.environment')
+          %td= _("Environment")
           %td= @image.environment
         %tr
-          %td= t('images.show.image_id')
+          %td= _("Image ID")
           %td= @image.uuid
 
 %section.content-section
   %header
     .section-controls
       - if @builds.any?
-        %span= t'images.show.view_build'
+        %span= _("View build")
         - if user_can_build
           = form_tag image_path(@image.id), :method => :get do
             = select_tag :build, options_for_build_select(@builds, @build, @latest_build_id)
-            = submit_tag t('images.show.select_build'), :id => 'select_build_button'
+            = submit_tag _("Select"), :id => 'select_build_button'
       - if user_can_build
         - if @image.imported?
-          %span= t('images.show.can_not_build_imported_image')
+          %span= _("Imported image can't be built or pushed")
         -else
           - if @builds.any?
             - build_text = 'images.show.rebuild'
@@ -48,8 +48,8 @@
           = button_to t(build_text), rebuild_all_image_path(@image.id), :class => 'button' unless @account_groups_listing.blank?
           #push-all-btn
             - if @push_all_enabled
-              = button_to t('images.show.push_all'), push_all_image_path(@image.id, :build_id => @build.id), :class => 'button'
-    %h2= t('images.show.provider_images')
+              = button_to _("Push all"), push_all_image_path(@image.id, :build_id => @build.id), :class => 'button'
+    %h2= _("Provider Images")
 
   .content
     %ul.image_builds

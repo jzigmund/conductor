@@ -45,19 +45,19 @@ class TargetImagesController < ApplicationController
       i = image.build.image
       if i.imported?
         if i.delete!
-          flash[:notice] = t('images.flash.notice.deleted')
+          flash[:notice] = _("Image Deleted")
           redirect_to images_path
           return
         else
-          flash[:warning] = t('images.flash.warning.delete_failed')
+          flash[:warning] = _("Unable to Delete Image")
         end
       elsif image.delete!
-        flash[:notice] = t('target_images.flash.notice.deleted')
+        flash[:notice] = _("Target Image Deleted")
       else
-        flash[:warning] = t('target_images.flash.warning.delete_failed')
+        flash[:warning] = _("Unable to Delete Target Image")
       end
     else
-      flash[:warning] = t('target_images.flash.warning.not_found')
+      flash[:warning] = _("Target Image not found")
     end
     build_id = image.build.id rescue nil
     redirect_to image_path(params[:image_id], :build => build_id)

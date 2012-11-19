@@ -49,13 +49,13 @@ module Api
       req = process_post(request.body.read)
       begin
         if req[:type] == :failed
-          raise(Aeolus::Conductor::API::InsufficientParametersSupplied.new(400, t("api.error_messages.specify_a_type_build_or_import")))
+          raise(Aeolus::Conductor::API::InsufficientParametersSupplied.new(400, _("Please specify a type, build or import")))
         elsif req[:type] == :failed_env
-          raise(Aeolus::Conductor::API::InsufficientParametersSupplied.new(400, t("api.error_messages.specify_environment")))
+          raise(Aeolus::Conductor::API::InsufficientParametersSupplied.new(400, _("Please specify an Environment")))
         elsif req[:type] == :build
           errors = TemplateXML.validate(req[:params][:template])
           raise Aeolus::Conductor::API::ParameterDataIncorrect.new(400, t("api.error_messages.invalid_template", :errors => errors.join(", "))) if errors.any?
-          raise Aeolus::Conductor::API::InsufficientParametersSupplied.new(400, t("api.error_messages.environment_required")) if req[:params][:environment].nil?
+          raise Aeolus::Conductor::API::InsufficientParametersSupplied.new(400, _("Environment parameter is required.")) if req[:params][:environment].nil?
           @pool_family = PoolFamily.find_by_name(req[:params][:environment])
           raise Aeolus::Conductor::API::ParameterDataIncorrect.new(400, t("api.error_messages.environment_not_found", :environment => req[:params][:environment])) if @pool_family.nil?
           check_permissions
@@ -102,7 +102,7 @@ module Api
           account = ProviderAccount.find_by_label(req[:params][:provider_account_name])
           raise(Aeolus::Conductor::API::ProviderAccountNotFound.new(404, t("api.error_messages.provider_account_not_found",
             :name => req[:params][:provider_account_name]))) unless account.present?
-          raise Aeolus::Conductor::API::InsufficientParametersSupplied.new(400, t("api.error_messages.environment_required")) if req[:params][:environment].nil?
+          raise Aeolus::Conductor::API::InsufficientParametersSupplied.new(400, _("Environment parameter is required.")) if req[:params][:environment].nil?
           @pool_family = PoolFamily.find_by_name(req[:params][:environment])
           raise Aeolus::Conductor::API::ParameterDataIncorrect.new(400, t("api.error_messages.environment_not_found", :environment => req[:params][:environment])) if @pool_family.nil?
           check_permissions
@@ -176,7 +176,7 @@ module Api
       if check_privilege(Privilege::USE, PoolFamily)
         return true
       else
-        raise Aeolus::Conductor::API::PermissionDenied.new(403, t("api.error_messages.insufficient_privileges"))
+        raise Aeolus::Conductor::API::PermissionDenied.new(403, _("Insufficient privileges to perform the requested action."))
       end
     end
   end

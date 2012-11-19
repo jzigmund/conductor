@@ -4,7 +4,7 @@
     .return_to
       = t :return_to
       = link_to t('images.environment', :environment => @environment.name), pool_family_path(@environment)
-  %h1.no-icon= t('.import_image')
+  %h1.no-icon= _("Import Image")
 
 %section.content-section
 
@@ -13,18 +13,18 @@
       = hidden_field_tag :environment, @environment.id
       %fieldset
         .field
-          = label_tag :provider_account, t('.provider_account')
+          = label_tag :provider_account, _("Provider Account")
           .input
             = select_tag :provider_account, options_for_select(@accounts.collect{|x| [x.label, x.id]})
         .field
-          = label_tag :image_id, t('.image_id')
+          = label_tag :image_id, _("Image ID")
           .input
             = text_field_tag :image_id
         .field
-          = label_tag :name, t('.name')
+          = label_tag :name, _("Name")
           .input
             = text_field_tag :name
 
       %fieldset.options
-        = submit_tag t(:continue), :id => "file_button", :class => "button primary", :disabled => @accounts.empty?
-        = link_to t(:cancel), pool_families_path, :class => "button danger"
+        = submit_tag _("Continue"), :id => "file_button", :class => "button primary", :disabled => @accounts.empty?
+        = link_to _("Cancel"), pool_families_path, :class => "button danger"

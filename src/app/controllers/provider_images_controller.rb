@@ -31,14 +31,14 @@ class ProviderImagesController < ApplicationController
     )
     begin
       if @provider_image.save
-        flash[:notice] = t('provider_images.flash.notice.upload_start')
+        flash[:notice] = _("Provider Image Upload Started")
         @push_started = true
       else
-        flash[:warning] = t('provider_images.flash.warning.upload_failed')
+        flash[:warning] = _("Unable to Upload Provider Image")
       end
     rescue Exception => e
       logger.error "Caught exception importing image: #{e.message}"
-      flash[:warning] = t('provider_images.flash.warning.upload_failed')
+      flash[:warning] = _("Unable to Upload Provider Image")
     end
     redirect_to image_path(params[:image_id], :build => params[:build_id], :push_started => @push_started,
                            :provider_account_id => @push_started ? provider_account.id : nil)
@@ -54,20 +54,20 @@ class ProviderImagesController < ApplicationController
       i = image.target_image.build.image
       if i.imported?
         if i.delete!
-          flash[:notice] = t('images.flash.notice.deleted')
+          flash[:notice] = _("Image Deleted")
           redirect_to images_path
           return
         else
-          flash[:warning] = t('images.flash.warning.delete_failed')
+          flash[:warning] = _("Unable to Delete Image")
         end
       elsif image.delete!
         flash[:notice] = t('provider_images.flash.notice.deleted',
                            :target_id => target_id, :provider => provider)
       else
-        flash[:warning] = t('provider_images.flash.warning.delete_failed')
+        flash[:warning] = _("Unable to Delete Provider Image")
       end
     else
-      flash[:warning] = t('provider_images.flash.warning.not_found')
+      flash[:warning] = _("Provider Image not found")
     end
     build_id = image.build.id rescue nil
     redirect_to image_path(params[:image_id], :build => build_id)

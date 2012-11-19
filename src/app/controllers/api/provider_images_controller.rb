@@ -109,7 +109,7 @@ module Api
 
     def list_target_images(doc)
       if doc.xpath("/provider_image/provider_account").empty?
-        raise(Aeolus::Conductor::API::InsufficientParametersSupplied.new(400, t("api.error_messages.no_provider_account_given")))
+        raise(Aeolus::Conductor::API::InsufficientParametersSupplied.new(400, _("No Provider Account given")))
       else
         target_images = []
         if !doc.xpath("/provider_image/image_id").empty?
@@ -137,10 +137,10 @@ module Api
           end
           target_images << target_image
         else
-          raise(Aeolus::Conductor::API::InsufficientParametersSupplied.new(400, t("api.error_messages.no_image_build_or_target_image")))
+          raise(Aeolus::Conductor::API::InsufficientParametersSupplied.new(400, _("Invalid Parameters: No Image, Build or TargetImage provided in request")))
         end
         if target_images.empty?
-          raise(Aeolus::Conductor::API::InsufficientParametersSupplied.new(400, t("api.error_messages.no_matching_target_image")))
+          raise(Aeolus::Conductor::API::InsufficientParametersSupplied.new(400, _("Could not find any matching Target Images")))
         else
           target_images
         end
