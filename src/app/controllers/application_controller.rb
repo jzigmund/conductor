@@ -154,7 +154,7 @@ class ApplicationController < ActionController::Base
     if url.blank?
       error = _("No URL is provided for XML import")
     elsif not url =~ URI::regexp
-      error = t('application_controller.flash.error.not_valid_url', :url => url)
+      error = _("Provided URL is not valid %s") % url
     else
       begin
         response = RestClient.get(url, :accept => :xml)
@@ -164,7 +164,7 @@ class ApplicationController < ActionController::Base
           error = _("Download of XML file failed")
         end
       rescue RestClient::Exception, SocketError, URI::InvalidURIError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-        error = t('application_controller.flash.error.not_valid_or_reachable', :url => url)
+        error = _("XML file is either invalid or no longer reachable at %s") % url
       end
     end
     return nil, error

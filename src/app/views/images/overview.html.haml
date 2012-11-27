@@ -3,7 +3,7 @@
   .obj_actions
     .return_to
       = t :return_to
-      = link_to t('images.environment', :environment => @environment.name), pool_family_path(@environment)
+      = link_to _("Environment"), pool_family_path(@environment)
   %h1.no-icon= @name
 
 %section.content-section
@@ -15,7 +15,7 @@
 
       .lefted.image-upload-overview
         %h2= _("Valid Image")
-        %p.description= t('.description', :name => @name)
+        %p.description= _("Description") % @name
 
       .centered
         %fieldset.align-center

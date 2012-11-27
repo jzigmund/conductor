@@ -4,14 +4,14 @@
   .obj_actions
     .return_to
       = t(:return_to)
-      = link_to t('images.environment', :environment => @environment.name), pool_family_path(@environment)
+      = link_to _("Environment"), pool_family_path(@environment)
   %h1.no-icon= _("New Image")
 
 %section.content-section
   .content
     .centered
       %p.description.align-center
-        %strong= t('.description', :environment => @environment.name)
+        %strong= _("Choose one of the following options to upload or import an image into the %s Environment.") % @environment.name
 
       %nav#image-upload-tabs.faceted
         %ul.tabs

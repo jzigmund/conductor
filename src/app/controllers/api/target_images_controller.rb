@@ -29,7 +29,7 @@ module Api
         if build = Aeolus::Image::Warehouse::ImageBuild.find(params[:build_id])
           @images = build.target_images
         else
-          raise(Aeolus::Conductor::API::BuildNotFound.new(400, t("api.error_messages.build_not_found", :build => id)))
+          raise(Aeolus::Conductor::API::BuildNotFound.new(400, _("Could not find Build %s") % id))
         end
       else
         @images = Aeolus::Image::Warehouse::TargetImage.all
@@ -50,7 +50,7 @@ module Api
                                                            :status => status)
           respond_with(@image)
         else
-          raise(Aeolus::Conductor::API::TargetImageStatusNotFound.new(404, t("api.error_messages.target_image_status_not_found", :targetimage => id)))
+          raise(Aeolus::Conductor::API::TargetImageStatusNotFound.new(404, _("Could not find status for TargetImage %s") % id))
         end
       end
     end
@@ -63,7 +63,7 @@ module Api
             respond_with(@image, @provider_images)
           end
         else
-          raise(Aeolus::Conductor::API::TargetImageNotFound.new(404, t("api.error_messages.target_image_not_found", :targetimage => params[:id])))
+          raise(Aeolus::Conductor::API::TargetImageNotFound.new(404, _("Could not find TargetImage %s") % params[:id]))
         end
       rescue Aeolus::Conductor::API::TargetImageNotFound => e
         raise(e)

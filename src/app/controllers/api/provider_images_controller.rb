@@ -29,7 +29,7 @@ module Api
         if target_image = Aeolus::Image::Warehouse::TargetImage.find(params[:target_image_id])
           @images = target_image.provider_images
         else
-          raise(Aeolus::Conductor::API::TargetImageNotFound.new(400, t("api.error_messages.target_image_not_found", :targetimage => id)))
+          raise(Aeolus::Conductor::API::TargetImageNotFound.new(400, _("Could not find TargetImage %s") % target_image_id))
         end
       else
         @images = Aeolus::Image::Warehouse::ProviderImage.all
@@ -50,7 +50,7 @@ module Api
                                                              :status => status)
           respond_with(@image)
         else
-          raise(Aeolus::Conductor::API::ProviderImageStatusNotFound.new(404, t("api.error_messages.provider_image_status_not_found", :providerimage => id)))
+          raise(Aeolus::Conductor::API::ProviderImageStatusNotFound.new(404, _("Could not find status for ProviderImage %s") % id))
         end
       end
     end
@@ -60,7 +60,7 @@ module Api
       begin
         target_images = list_target_images(doc)
       rescue ActiveResource::BadRequest => e
-        raise(Aeolus::Conductor::API::InsufficientParametersSupplied.new(400, t("api.error_messages.in_grabbing_target_images", :error => e.message)))
+        raise(Aeolus::Conductor::API::InsufficientParametersSupplied.new(400, _("In grabbing list of target images: %s") % e.message))
         return
       end
 
@@ -71,22 +71,22 @@ module Api
       doc.xpath("/provider_image/provider_account").text.split(",").each do |account_name|
         account = ProviderAccount.find_by_label(account_name)
         if !account
-          raise(Aeolus::Conductor::API::ProviderAccountNotFound.new(404, t("api.error_messages.provider_account_not_found", :name => account_name)))
+          raise(Aeolus::Conductor::API::ProviderAccountNotFound.new(404, _("Could not find Provider Account for name %s") % account_name))
         elsif !environment_accounts.include?(account)
-          raise(Aeolus::Conductor::API::ParameterDataIncorrect.new(400, t("api.error_messages.account_not_found_in_environment", :account => account.label, :accounts => environment_accounts.collect{|a|a.label}.join(", "))))
+          raise(Aeolus::Conductor::API::ParameterDataIncorrect.new(400, _("Provider Account %s is not in this Environment. Valid accounts include %s.") % [account.label, environment_accounts.collect{|a|a.label}.join(", ")]))
         end
 
         target_image = find_target_image_for_account(target_images, account)
         if !target_image
-          raise(Aeolus::Conductor::API::TargetImageNotFound.new(404, t("api.error_messages.target_image_not_found_for_account", :account => account_name)))
+          raise(Aeolus::Conductor::API::TargetImageNotFound.new(404, _("Could not find an appropriate target image for account %s") % account_name))
         end
 
         begin
           @provider_images << send_push_request(target_image, account)
         rescue ActiveResource::BadRequest
-          raise(Aeolus::Conductor::API::ParameterDataIncorrect.new(400, t("api.error_messages.invalid_parameters_for_account_and_target_image", :account => account_name, :targetimage => target_image.id)))
+          raise(Aeolus::Conductor::API::ParameterDataIncorrect.new(400, _("Invalid parameters for Account: %s TargetImage: %s") % [account_name, target_image.id]))
         rescue => e
-          raise(Aeolus::Conductor::API::PushError.new(500, t("api.error_messages.push_error", :targetimage => target_image.id, :account => account_name, :error => e.message)))
+          raise(Aeolus::Conductor::API::PushError.new(500, _("Could not push TargetImage %s to %s and error %s") % [target_image.id, account_name, e.message]))
         end
       end
     end
@@ -98,7 +98,7 @@ module Api
             respond_with(@image)
           end
         else
-          raise(Aeolus::Conductor::API::ProviderImageNotFound.new(404, t("api.error_messages.provider_image_not_found", :providerimage => params[:id])))
+          raise(Aeolus::Conductor::API::ProviderImageNotFound.new(404, _("Could not find ProviderImage %s") % params[:id]))
         end
       rescue Aeolus::Conductor::API::ProviderImageNotFound => e
         raise(e)
@@ -116,7 +116,7 @@ module Api
           image_id = doc.xpath("/provider_image/image_id").text
           image = Aeolus::Image::Warehouse::Image.find(image_id)
           if !image
-            raise(Aeolus::Conductor::API::ImageNotFound.new(404, t("api.error_messages.image_not_found", :image => image_id)))
+            raise(Aeolus::Conductor::API::ImageNotFound.new(404, _("Could not find Image %s") % image_id))
           end
           image.image_builds.each do |build|
             target_images += build.target_images
@@ -127,13 +127,13 @@ module Api
           if build = Aeolus::Image::Warehouse::ImageBuild.find(build_id)
             target_images = build.target_images
           else
-            raise(Aeolus::Conductor::API::BuildNotFound.new(404, t("api.error_messages.build_not_found", :build => build_id)))
+            raise(Aeolus::Conductor::API::BuildNotFound.new(404, _("Could not find Build %s") % build_id))
           end
         elsif !doc.xpath("/provider_image/target_image_id").empty?
           target_image_id = doc.xpath("/provider_image/target_image_id").text
           target_image = Aeolus::Image::Warehouse::TargetImage.find(target_image_id)
           if !target_image
-            raise(Aeolus::Conductor::API::TargetImageNotFound.new(404, t("api.error_messages.target_image_not_found", :targetimage => target_image_id)))
+            raise(Aeolus::Conductor::API::TargetImageNotFound.new(404, _("Could not find TargetImage %s") % target_image_id))
           end
           target_images << target_image
         else

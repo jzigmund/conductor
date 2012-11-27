@@ -61,8 +61,7 @@ class ProviderImagesController < ApplicationController
           flash[:warning] = _("Unable to Delete Image")
         end
       elsif image.delete!
-        flash[:notice] = t('provider_images.flash.notice.deleted',
-                           :target_id => target_id, :provider => provider)
+        flash[:notice] = _("Provider Image Deleted. In order to remove the actual image stored by the Provider, visit the %s's management console and seek out the %s image.") % [target_id, provider]
       else
         flash[:warning] = _("Unable to Delete Provider Image")
       end

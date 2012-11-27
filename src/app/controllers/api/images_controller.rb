@@ -40,7 +40,7 @@ module Api
         @builds = @image.image_builds
         respond_with(@image)
       else
-        raise(Aeolus::Conductor::API::ImageNotFound.new(404, t("api.error_messages.image_not_found", :image => id)))
+        raise(Aeolus::Conductor::API::ImageNotFound.new(404, _("Could not find Image %s") % id))
       end
     end
 
@@ -54,10 +54,10 @@ module Api
           raise(Aeolus::Conductor::API::InsufficientParametersSupplied.new(400, _("Please specify an Environment")))
         elsif req[:type] == :build
           errors = TemplateXML.validate(req[:params][:template])
-          raise Aeolus::Conductor::API::ParameterDataIncorrect.new(400, t("api.error_messages.invalid_template", :errors => errors.join(", "))) if errors.any?
+          raise Aeolus::Conductor::API::ParameterDataIncorrect.new(400, _("Invalid Image Template: %s") % errors.join(", ")) if errors.any?
           raise Aeolus::Conductor::API::InsufficientParametersSupplied.new(400, _("Environment parameter is required.")) if req[:params][:environment].nil?
           @pool_family = PoolFamily.find_by_name(req[:params][:environment])
-          raise Aeolus::Conductor::API::ParameterDataIncorrect.new(400, t("api.error_messages.environment_not_found", :environment => req[:params][:environment])) if @pool_family.nil?
+          raise Aeolus::Conductor::API::ParameterDataIncorrect.new(400, _("Environment %s was not found.") % req[:params][:environment]) if @pool_family.nil?
           check_permissions
           environment_targets = @pool_family.build_targets
 
@@ -69,11 +69,11 @@ module Api
               @targetnotfound=true
               @badtarget=t
             elsif !environment_targets.include?(t)
-              raise(Aeolus::Conductor::API::ParameterDataIncorrect.new(400, t("api.error_messages.target_not_found_in_environment", :target => t, :targets => environment_targets.join(", "))))
+              raise(Aeolus::Conductor::API::ParameterDataIncorrect.new(400, _("Target %s has no Provider Accounts in this Environment. Valid targets include %s.") % [t, environment_targets.join(", ")]))
             end
           end
           if @targetnotfound
-            raise(Aeolus::Conductor::API::TargetNotFound.new(404, t("api.error_messages.target_not_found", :target => @badtarget)))
+            raise(Aeolus::Conductor::API::TargetNotFound.new(404, _("Could not find Target %s") % @badtarget))
           end
 
           uuid = UUIDTools::UUID.timestamp_create.to_s
@@ -100,21 +100,19 @@ module Api
           end
         elsif req[:type] == :import
           account = ProviderAccount.find_by_label(req[:params][:provider_account_name])
-          raise(Aeolus::Conductor::API::ProviderAccountNotFound.new(404, t("api.error_messages.provider_account_not_found",
-            :name => req[:params][:provider_account_name]))) unless account.present?
+          raise(Aeolus::Conductor::API::ProviderAccountNotFound.new(404, _("Could not find Provider Account for name %s") % req[:params][:provider_account_name])) unless account.present?
           raise Aeolus::Conductor::API::InsufficientParametersSupplied.new(400, _("Environment parameter is required.")) if req[:params][:environment].nil?
           @pool_family = PoolFamily.find_by_name(req[:params][:environment])
-          raise Aeolus::Conductor::API::ParameterDataIncorrect.new(400, t("api.error_messages.environment_not_found", :environment => req[:params][:environment])) if @pool_family.nil?
+          raise Aeolus::Conductor::API::ParameterDataIncorrect.new(400, _("Environment %s was not found.") % req[:params][:environment]) if @pool_family.nil?
           check_permissions
           environment_accounts = @pool_family.provider_accounts
           if !environment_accounts.include?(account)
-            raise(Aeolus::Conductor::API::ParameterDataIncorrect.new(400, t("api.error_messages.account_not_found_in_environment", :account => account.label, :accounts => environment_accounts.collect{|a|a.label}.join(", "))))
+            raise(Aeolus::Conductor::API::ParameterDataIncorrect.new(400, _("Provider Account %s is not in this Environment. Valid accounts include %s.") % [account.label, environment_accounts.collect{|a|a.label}.join(", ")]))
           end
           begin
             @image = Image.import(account, req[:params][:target_identifier], @pool_family, req[:params][:image_descriptor])
           rescue Aeolus::Conductor::Base::ImageNotFound
-            raise(Aeolus::Conductor::API::ImageNotFound.new(404, t("api.error_messages.image_not_found_on_provider",
-              :image => req[:params][:target_identifier])))
+            raise(Aeolus::Conductor::API::ImageNotFound.new(404, _("Could not find Image %s on Provider") % req[:params][:target_identifier]))
           end
           respond_with(@image)
         end
@@ -133,7 +131,7 @@ module Api
             respond_with(@image, @provider_images)
           end
         else
-          raise(Aeolus::Conductor::API::ImageNotFound.new(404, t("api.error_messages.image_not_found", :image => params[:id])))
+          raise(Aeolus::Conductor::API::ImageNotFound.new(404, _("Could not find Image %s") % params[:id]))
         end
       rescue Aeolus::Conductor::API::ImageNotFound => e
         raise(e)
