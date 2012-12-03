@@ -366,7 +366,7 @@ class ImagesController < ApplicationController
       check_permissions
       image.delete!
     end
-    redirect_to images_path, :notice => t("images.flash.notice.multiple_deleted", :count => selected_images.count)
+    redirect_to images_path, :notice => n_("%{count} Image deleted","%{count} Images deleted",selected_images.count)
   end
 
   protected
@@ -465,7 +465,7 @@ class ImagesController < ApplicationController
 
       if failed_build_count.present? && failed_build_count > 0
         build_status[:translated_failed_build_count] =
-          t('images.show.failed_build_attempts', :count => failed_build_count)
+          n_("%s failed build attempt","%s failed build attempts",failed_build_count) % failed_build_count
       end
     end
 
@@ -541,7 +541,7 @@ class ImagesController < ApplicationController
 
       if failed_push_count > 0
         push_status[:translated_failed_push_count] =
-          t('images.show.failed_push_attempts', :count => failed_push_count)
+          n_("%s failed push attempt","%s failed push attempts",failed_push_count) % failed_push_count
       end
     end
 
